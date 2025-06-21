@@ -2,7 +2,7 @@
 FROM openjdk:17-jdk-alpine
 
 # Expose the port your Spring Boot application listens on (default is 8080)
-EXPOSE 80
+EXPOSE 8080
 
 # Define an argument for the JAR file name (can be passed during build)
 ARG JAR_FILE=target/*.jar
