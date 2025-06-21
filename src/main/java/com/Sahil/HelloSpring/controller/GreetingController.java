@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
-@CrossOrigin(origins = "https://techshop-git-main-joaquins-projects-d526bcdf.vercel.app")
+@CrossOrigin(origins = "https://techshop-l9sxjcmc3-joaquins-projects-d526bcdf.vercel.app/")
 public class GreetingController {
 
   @GetMapping("/greeting")

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import com.Sahil.HelloSpring.repository.ProductsRepository;
 
 @Controller
-@CrossOrigin(origins = "https://techshop-git-main-joaquins-projects-d526bcdf.vercel.app")
+@CrossOrigin(origins = "https://techshop-l9sxjcmc3-joaquins-projects-d526bcdf.vercel.app/")
 public class DataController {
 
     @Autowired
