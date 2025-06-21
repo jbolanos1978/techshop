@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-@CrossOrigin(origins = "https://techshop-l9sxjcmc3-joaquins-projects-d526bcdf.vercel.app/")
+@CrossOrigin(origins = "https://techshop-one.vercel.app")
 public class HelloController {
 
     @GetMapping("/hello")
