@@ -1,0 +1,25 @@
+version: '3.8' # Or a suitable version for your Docker Compose
+services:
+  spring-app:
+    build: . # Or specify the path to your Dockerfile, e.g., ./docker/spring-app
+    ports:
+      - "8080:8080" # Map host port 8080 to container port 8080
+    depends_on:
+      - database # Ensure the database starts before the Spring app
+    environment:
+      # Database connection details for your Spring Boot application
+      SPRING_DATASOURCE_URL: jdbc:mysql://192.168.1.124:3308/techshop # Replace 'mysql' with your database type and 'your_database_name'
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+  database:
+    image: mysql:8.0 # Or postgres:latest, mssql/server:2019-latest, etc.
+    environment:
+      MYSQL_ROOT_PASSWORD: root # Or POSTGRES_PASSWORD, MSSQL_SA_PASSWORD
+      MYSQL_DATABASE: techshop # Or POSTGRES_DB
+    ports:
+      - "3306:3306" # Map host port 3306 to container port 3306 (adjust for other databases)
+    volumes:
+      - db_data:/var/lib/mysql # Persist database data (adjust path for other databases)
+
+volumes:
+  db_data: # Define the named volume for data persistence
