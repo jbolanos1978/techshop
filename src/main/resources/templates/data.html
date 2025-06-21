@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<body>
+    <div>
+        <table class="table table-striped table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Id</th>
+                    <th>Description</th>
+                    <th>Image</th>
+                </tr>
+
+            </thead>
+            <tbody>
+                <tr th:each="currentproduct: ${products}">
+                    <form action="#" th:action="@{'/api/products/' + ${currentproduct.productId}}" method="post">
+                        <td th:text="${currentproduct.productId}"></td>
+                        <td>
+                            <input th:name="productDescription" th:value="${currentproduct.productDescription}"/>
+                        </td>
+                        <td>
+                            <a th:href="@{'/api/products/' + ${currentproduct.productId}}">
+                                <img th:src="${currentproduct.productImage}" width="150" height="150" />
+                            </a>
+                        </td>
+                        <td>
+                            <input th:name="productImage" th:value="${currentproduct.productImage}"/>
+                        </td>
+                        <td>
+                            <input type="submit" value="UPDATE" />
+                        <td>
+                    </form>
+                    <td>
+                        <form action="#" th:action="@{'/api/products/' + ${currentproduct.productId}}" method="post">
+                            <input type="hidden" name="_method" value="delete" />
+                            <input type="submit" value="DELETE" />
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <form action="#" th:action="@{/api/products}" th:object="${product}" method="post">
+            <h4>Enter your new Product</h4>
+            <label for="productId">Product Id:</label>
+            <input type="text" th:field="*{productId}"/>
+            <label for="productDescription">Product Description:</label>
+            <input type="text" th:field="*{productDescription}"/>
+            <label for="productImage">Product Image:</label>
+            <input type="text" th:field="*{productImage}"/>
+
+            <input type="submit" value="SUBMIT" /> <input type="reset" value="RESET" />
+        </form>
+
+    </div>
+</body>
+
+</html> 
