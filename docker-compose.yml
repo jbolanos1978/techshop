@@ -8,7 +8,8 @@ services:
       - database # Ensure the database starts before the Spring app
     environment:
       # Database connection details for your Spring Boot application
-      SPRING_DATASOURCE_URL: jdbc:mysql://192.168.1.124:3308/techshop # Replace 'mysql' with your database type and 'your_database_name'
+      #SPRING_DATASOURCE_URL: jdbc:mysql://192.168.1.124:3308/techshop # Replace 'mysql' with your database type and 'your_database_name'
+      SPRING_DATASOURCE_URL: jdbc:mysql://host_docker_internal:3308/techshop # Replace 'mysql' with your database type and 'your_database_name'
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
   database:
