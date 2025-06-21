@@ -21,6 +21,7 @@ import com.Sahil.HelloSpring.repository.ProductsRepository;
 
 @Controller
 @CrossOrigin(origins = "https://techshop-joaquins-projects-d526bcdf.vercel.app")
+
 @RequestMapping("/api")
 public class APIController {
 
