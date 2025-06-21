@@ -3,7 +3,7 @@ services:
   spring-app:
     build: . # Or specify the path to your Dockerfile, e.g., ./docker/spring-app
     ports:
-      - "8080:8080" # Map host port 8080 to container port 8080
+      - "80:80" # Map host port 8080 to container port 8080
     depends_on:
       - database # Ensure the database starts before the Spring app
     environment:
