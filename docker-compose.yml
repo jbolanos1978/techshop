@@ -9,7 +9,8 @@ services:
     environment:
       # Database connection details for your Spring Boot application
       #SPRING_DATASOURCE_URL: jdbc:mysql://192.168.1.124:3308/techshop # Replace 'mysql' with your database type and 'your_database_name'
-      SPRING_DATASOURCE_URL: jdbc:mysql://35.199.160.207:3306/techshop # Replace 'mysql' with your database type and 'your_database_name'.
+      SPRING_DATASOURCE_URL: jdbc:mysql://google/techshop?cloudSqlInstance=my-project-1553548534242:us-west1:techshop-mysql&socketFactory=com.google.cloud.sql.mysql.SocketFactory  # Replace 'mysql' with your database type and 'your_database_name'.
+      #SPRING_DATASOURCE_URL: jdbc:mysql://35.199.160.207:3306/techshop 
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: isabella
   database:
@@ -23,4 +24,4 @@ services:
       - db_data:/var/lib/mysql # Persist database data (adjust path for other databases)
 
 volumes:
-  db_data: # Define the named volume for data persistence
+  - db_data: # Define the named volume for data persistence
