@@ -27,9 +27,12 @@ public class APIController {
     private ProductsRepository productRepository;
 
     @GetMapping("/products")
-    public List<Products> getProducts(@RequestParam("search") Optional<String> searchParam){
-        return searchParam.map( param->productRepository.getContainingProduct(param) )
+    public String getProducts(@RequestParam("search") Optional<String> searchParam, Model model){
+        List<Products> vsearch = searchParam.map( param->productRepository.getContainingProduct(param) )
                 .orElse(productRepository.findAll());
+        model.addAttribute("products",vsearch);
+        model.addAttribute("product", new Product());
+        return "data";
     }
 
     @GetMapping("/products/{productId}" )
