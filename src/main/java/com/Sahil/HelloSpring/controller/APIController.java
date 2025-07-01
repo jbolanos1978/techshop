@@ -42,11 +42,11 @@ public class APIController {
 
     @PostMapping("/products")
     public String addProduct (@ModelAttribute Products product, Model model) {
-        Products p = new Products();
-        p.setproductId(product.productId);
-        p.setproductDescription(product.productDescription);
-        p.setproductImage(product.productImage);
-        productRepository.save(p);
+        Products producttoinsert = new Products();
+        producttoinsert.setproductId(product.productId);
+        producttoinsert.setproductDescription(product.productDescription);
+        producttoinsert.setproductImage(product.productImage);
+        productRepository.save(producttoinsert);
         model.addAttribute("products",productRepository.findAll());
         model.addAttribute("product", new Product());
         return "data";

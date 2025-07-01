@@ -1,10 +1,25 @@
 <!DOCTYPE html>
 <html xmlns:th="https://www.thymeleaf.org">
+<head>
+        <title>My Spring Boot Page</title>
+        <style>
+            body {
+                background-color: rgb(208, 209, 212);
+            }
+        </style>
+</head>
 <body>
     <div>
         <form action="#" th:action="@{'/api/products?search=' + ${search}}" method="get">
-            <input type="text" th:name="search"/>
-            <input type="submit" value="SEARCH" />
+            <input id=search type="text" th:name="search"/>
+            <input id=submitbutton type="submit" value="SEARCH" />
+            <input type="button" value="CLEAR" onclick="clearOut()" />
+            <script>
+                function clearOut() {
+                    search.value = "";
+                    submitbutton.click();
+                }
+            </script>
         </form>
         <table class="table table-striped table-bordered">
             <thead class="thead-dark">
