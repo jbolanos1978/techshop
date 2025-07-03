@@ -59,7 +59,7 @@
             </tbody>
         </table>
 
-        <form action="#" th:action="@{/api/products}" th:object="${product}" method="post">
+        <!--<form action="#" th:action="@{/api/products}" th:object="${product}" method="post">
             <h4>Enter your new Product</h4>
             <label for="productId">Product Id:</label>
             <input type="text" th:field="*{productId}"/>
@@ -67,6 +67,18 @@
             <input type="text" th:field="*{productDescription}"/>
             <label for="productImage">Product Image:</label>
             <input type="text" th:field="*{productImage}"/>
+
+            <input type="submit" value="SUBMIT" /> <input type="reset" value="RESET" />
+        </form>-->
+
+        <form action="#" th:action="@{/api/products}" method="post">
+            <h4>Enter your new Product</h4>
+            <label>Product Id:</label>
+            <input th:name="productId"/>
+            <label>Product Description:</label>
+            <input th:name="productDescription"/>
+            <label>Product Image:</label>
+            <input th:name="productImage"/>
 
             <input type="submit" value="SUBMIT" /> <input type="reset" value="RESET" />
         </form>

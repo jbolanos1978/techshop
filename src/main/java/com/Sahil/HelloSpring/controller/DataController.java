@@ -17,7 +17,7 @@ public class DataController {
     @GetMapping("/showproducts")
     public String data(Model model) {
         model.addAttribute("products",productRepository.findAll());
-        model.addAttribute("product", new Product());
+        //model.addAttribute("product", new Product());
         return "data";
     }
 

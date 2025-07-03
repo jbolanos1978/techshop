@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.Sahil.HelloSpring.model.Products;
+import com.Sahil.HelloSpring.model.Customers;
 import com.Sahil.HelloSpring.repository.ProductsRepository;
+import com.Sahil.HelloSpring.repository.CustomersRepository;
 
 @Controller
 
@@ -24,19 +26,21 @@ import com.Sahil.HelloSpring.repository.ProductsRepository;
 public class APIController {
 
     @Autowired
+    private CustomersRepository customerRepository;
+    @Autowired
     private ProductsRepository productRepository;
 
     @GetMapping("/products")
-    public String getProducts(@RequestParam("search") Optional<String> searchParam, Model model){
+    public String getProducts (@RequestParam("search") Optional<String> searchParam, Model model){
         List<Products> vsearch = searchParam.map( param->productRepository.getContainingProduct(param) )
                 .orElse(productRepository.findAll());
         model.addAttribute("products",vsearch);
-        model.addAttribute("product", new Product());
+        //model.addAttribute("product", new Product());
         return "data";
     }
 
-    @GetMapping("/products/{productId}" )
-    public ResponseEntity<String> readProduct(@PathVariable("productId") Long productId) {
+    @GetMapping("/products/{productId}")
+    public ResponseEntity<String> readProduct (@PathVariable("productId") Long productId) {
         return ResponseEntity.of(productRepository.findById(productId).map(Products::getproductDescription));
     }
 
@@ -48,12 +52,12 @@ public class APIController {
         producttoinsert.setproductImage(product.productImage);
         productRepository.save(producttoinsert);
         model.addAttribute("products",productRepository.findAll());
-        model.addAttribute("product", new Product());
+        //model.addAttribute("product", new Product());
         return "data";
     }
 
     @PostMapping("/products/{productId}")
-    public String updateProduct (@PathVariable("productId") Long productId, @ModelAttribute Products product, Model model) {
+    public String updateProduct (@PathVariable(value = "productId") Long productId, @ModelAttribute Products product, Model model) {
         Optional<Products> optionalproduct = productRepository.findById(productId);
         if (optionalproduct.isPresent()) {
             Products producttoupdate = optionalproduct.get();
@@ -62,15 +66,54 @@ public class APIController {
             productRepository.save(producttoupdate);
         }
         model.addAttribute("products",productRepository.findAll());
-        model.addAttribute("product", new Product());
+        //model.addAttribute("product", new Product());
         return "data";
     }
 
     @DeleteMapping("/products/{productId}")
-    public String deleteQuote(@PathVariable(value = "productId") Long productId, Model model) {
+    public String deleteProduct (@PathVariable(value = "productId") Long productId, Model model) {
         productRepository.deleteById(productId);
         model.addAttribute("products",productRepository.findAll());
-        model.addAttribute("product", new Product());
+        //model.addAttribute("product", new Product());
         return "data";
+    }
+
+    @GetMapping("/customers")
+    public String getCustomers (@RequestParam("search") Optional<String> searchParam, Model model){
+        List<Customers> vsearch = searchParam.map( param->customerRepository.getContainingCustomer(param) )
+                .orElse(customerRepository.findAll());
+        model.addAttribute("customers",vsearch);
+        return "data";
+    }
+
+    @GetMapping("/customers/{Id}")
+    public ResponseEntity<String> readCustomer (@PathVariable(value = "Id") String Id) {
+        return ResponseEntity.of(customerRepository.findById(Id).map(Customers::getnombre));
+    }
+
+    @PostMapping("/customers/{Id}")
+    public String updateCustomer (@PathVariable(value = "Id") String Id, @ModelAttribute Customers customer, Model model) {
+        Optional<Customers> optionalcustomer = customerRepository.findById(Id);
+        if (optionalcustomer.isPresent()) {
+            Customers customertoupdate = optionalcustomer.get();
+            customertoupdate.setnombre(customer.nombre);
+            customertoupdate.setimageUrl(customer.imageUrl);
+            customerRepository.save(customertoupdate);
+            System.out.println("SI Paso por Save...");
+            System.out.println("Nombre:" + customer.nombre);
+            System.out.println("imageUrl:" + customer.imageUrl);
+        }
+        else {
+            System.out.println("NO Paso por Save..." + Id);
+        }
+        model.addAttribute("customers",customerRepository.findAll());
+        return "customers";
+    }
+
+    @DeleteMapping("/customers/{Id}")
+    public String deleteCustomer (@PathVariable(value = "Id") String Id, Model model) {
+        customerRepository.deleteById(Id);
+        model.addAttribute("customers",customerRepository.findAll());
+        return "customers";
     }
 }
