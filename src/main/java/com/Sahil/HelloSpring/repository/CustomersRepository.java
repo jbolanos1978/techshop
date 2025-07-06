@@ -8,6 +8,9 @@ import org.springframework.data.mongodb.repository.Query;
 import com.Sahil.HelloSpring.model.Customers;
 
 public interface CustomersRepository extends MongoRepository<Customers, String> {
-    @Query("SELECT c FROM Customers c WHERE c.cedula LIKE %?1%")
-    List<Customers> getContainingCustomer(String word);     
+    @Query("{ 'nombre' : { $regex: /?0/i } }")
+    List<Customers> getContainingCustomer(String nombre); 
+    @Query("{ 'cedula' : ?0 }")
+    Customers findByCedula(String cedula);   
+    
 }

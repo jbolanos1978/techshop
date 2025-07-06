@@ -1,6 +1,5 @@
 package com.Sahil.HelloSpring.model;
 
-import jakarta.persistence.Cacheable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -48,14 +47,46 @@ public class Customers {
     @Column(name = "imageUrl")
         public String imageUrl;
 
+    public String getemail() {
+        return email;
+    }
+
+    public void setemail(String email) {
+        this.email = email;
+    }
+
     @Column(name = "email")
         public String email;
+
+    public String getpassword() {
+        return password;
+    }
+
+    public void setpassword(String password) {
+        this.password = password;
+    }   
 
     @Column(name = "password")
         public String password;
 
+    public Boolean getadmin() {
+        return admin;
+    }
+
+    public void setadmin(Boolean admin) {
+        this.admin = admin;
+    } 
+
     @Column(name = "admin")
         public Boolean admin;
+
+    public Long getfailedattempts() {
+        return failedattempts;
+    }
+
+    public void setfailedattempts(Long failedattempts) {
+        this.failedattempts = failedattempts;
+    } 
 
     @Column(name = "failedattempts")
         public Long failedattempts;

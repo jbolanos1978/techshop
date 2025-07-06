@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <title>My Spring Boot Page</title>
+        <style>
+            body {
+                background-color: rgb(208, 209, 212);
+            }
+        </style>
+</head>
+<body>
+    <div>
+        <form action="#" th:action="@{/api/login}" method="post">
+            <h1>LOGIN PAGE</h1>
+            <h2 th:text="${message}"></h2>
+            <label>User:</label>
+            <input th:name="cedula"/>
+            <label>Password:</label>
+            <input th:name="password"/>
+            <input type="submit" value="SUBMIT" /> <input type="reset" value="RESET" />
+        </form>
+    </div>
+</body>
+
+</html> 
