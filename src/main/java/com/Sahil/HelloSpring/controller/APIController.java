@@ -83,13 +83,13 @@ public class APIController {
         return password;
     }
 
-    @Value("${AWS_ACCESSKEY}")
+    @Value("${AMAZONWEBSERVICES_ACCESSKEY}")
     private String accessKey;
-    @Value("${AWS_SECRETKEY}")
+    @Value("${AMAZONWEBSERVICES_SECRETKEY}")
     private String secretKey;
-    @Value("${AWS_REGION}")
+    @Value("${AMAZONWEBSERVICES_REGION}")
     private String region;
-    @Value("${AWS_BUCKET}")
+    @Value("${AMAZONWEBSERVICES_BUCKET}")
     private String bucketName;
 
     @Value("${RESEND_APIKEY}")
