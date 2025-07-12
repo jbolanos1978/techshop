@@ -1,6 +1,9 @@
 version: 1
 frontend:
   phases:
+    preBuild:
+      commands:
+        - npm ci
     build:
       commands:
         - echo "MONGODB_USER=$MONGODB_USER" >> .env
@@ -17,9 +20,9 @@ frontend:
         - echo "AMAZONWEBSERVICES_BUCKET=$AMAZONWEBSERVICES_BUCKET" >> .env
         - echo "URL_ROOT=$URL_ROOT" >> .env
 
-        - mvn package
+        - npm run build
   artifacts:
-    baseDirectory: ./
+    baseDirectory: .next
     files:
       - '**/*'
 
