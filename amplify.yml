@@ -1,0 +1,25 @@
+version: 1
+frontend:
+  phases:
+    build:
+      commands:
+        - echo "MONGODB_USER=$MONGODB_USER" >> .env
+        - echo "MONGODB_PASSWORD=$MONGODB_PASSWORD" >> .env
+        - echo "MONGODB_DATABASE=$MONGODB_DATABASE" >> .env
+        - echo "MYSQL_USER=$MYSQL_USER" >> .env
+        - echo "MYSQL_PASSWORD=$MYSQL_PASSWORD" >> .env
+        - echo "MYSQL_DATABASE=$MYSQL_DATABASE" >> .env
+        - echo "JWT_SECRET=$JWT_SECRET" >> .env
+        - echo "RESEND_API_KEY=$RESEND_API_KEY" >> .env
+        - echo "AMAZONWEBSERVICES_ACCESSKEY=$AMAZONWEBSERVICES_ACCESSKEY" >> .env
+        - echo "AMAZONWEBSERVICES_SECRETKEY=$AMAZONWEBSERVICES_SECRETKEY" >> .env
+        - echo "AMAZONWEBSERVICES_REGION=$AMAZONWEBSERVICES_REGION" >> .env
+        - echo "AMAZONWEBSERVICES_BUCKET=$AMAZONWEBSERVICES_BUCKET" >> .env
+        - echo "URL_ROOT=$URL_ROOT" >> .env
+
+        - mvn package
+  artifacts:
+    baseDirectory: ./
+    files:
+      - '**/*'
+
