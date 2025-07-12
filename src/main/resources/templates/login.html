@@ -1,7 +1,7 @@
 <!DOCTYPE html>
+
 <html xmlns:th="https://www.thymeleaf.org">
 <head>
-        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <title>My Spring Boot Page</title>
         <style>
             body {
@@ -9,17 +9,66 @@
             }
         </style>
 </head>
+
 <body>
     <div>
-        <form action="#" th:action="@{/api/login}" method="post">
+        <form action="#" th:action="@{/api/login}" th:object="${logincustomer}" method="post">
             <h1>LOGIN PAGE</h1>
             <h2 th:text="${message}"></h2>
             <label>User:</label>
-            <input th:name="cedula"/>
-            <label>Password:</label>
-            <input th:name="password"/>
-            <input type="submit" value="SUBMIT" /> <input type="reset" value="RESET" />
+            <input type="text" th:id="cedula" th:field="*{cedula}" />
+            </label>
+            <label>Password:
+            <input type="password" th:id="password" th:field="*{password}" />
+            </label>
+            <input th:id="newpasswordcheckbox" type="checkbox" th:onchange="newpasswordcheckboxchange()"/>
+            <label>Change Password</label>
+            <label th:id="newpasswordblock" hidden>New Password:
+            <input type="password" th:id="newpassword" th:field="*{newpassword}" />
+            </label>
+            <label th:id="confirmpasswordblock" hidden>Confirm Password:
+            <input type="password" th:id="confirmpassword" th:field="*{confirmpassword}" />
+            </label>
+            <input th:id="forgotpasswordcheckbox" type="checkbox" th:onchange="forgotpasswordcheckboxchange()"/>
+            <label>Forgot Password?</label>
+            <label th:id="forgotpasswordblock" hidden>Email to Send Temporary Password:
+            <input type="text" th:id="forgotpassword" th:field="*{forgotpassword}" />
+            </label>
+            <input type="submit" value="SUBMIT" /> 
+            <input type="reset" value="RESET" />
         </form>
+
+        <script>
+            function newpasswordcheckboxchange() {
+                const newpasswordcheckbox = document.getElementById("newpasswordcheckbox");
+                const newpasswordblock = document.getElementById("newpasswordblock");
+                const confirmpasswordblock = document.getElementById("confirmpasswordblock");
+                if (newpasswordcheckbox.checked) {
+                    newpasswordblock.style.display = 'inline';
+                    confirmpasswordblock.style.display = 'inline';
+                }
+                else {
+                    newpasswordblock.style.display = 'none';
+                    confirmpasswordblock.style.display = 'none';
+                    newpassword.value = "";
+                    confirmpassword.value = "";
+                }
+            }
+
+            function forgotpasswordcheckboxchange() {
+                const forgotpasswordcheckbox = document.getElementById("forgotpasswordcheckbox");
+                const forgotpasswordblock = document.getElementById("forgotpasswordblock");
+                if (forgotpasswordcheckbox.checked) {
+                    forgotpasswordblock.style.display = 'inline';
+                }
+                else {
+                    forgotpasswordblock.style.display = 'none';
+                    forgotpassword.value = "";
+                }
+            }
+        </script>
+
+
     </div>
 </body>
 

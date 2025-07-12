@@ -10,6 +10,68 @@
         </style>
 </head>
 <body>
+    <script>
+        // Configuración del tiempo de inactividad en milisegundos
+        const INACTIVITY_TIME = 1000 * 60 * 1; // 1 minuto
+
+        // Variables para manejar el estado y referencias
+        let isInactive = false;
+        let timerId = null;
+        let wasActive = false;
+
+        // Función para resetear el temporizador
+        function resetTimer() {
+        if (timerId) {
+            clearTimeout(timerId);
+        }
+        wasActive = true;
+        timerId = setTimeout(() => {
+            isInactive = true;
+            wasActive = false;
+            // Acciones cuando el usuario está inactivo
+            console.log('User is inactive');
+            let vurl = window.location.href.substring(7);
+            vurl = "http://" + vurl.substring(0,vurl.indexOf("/")) + "/api/logoff";
+            window.location.replace(vurl);
+            // Aquí puedes llamar a la función de logout u otra acción
+        }, INACTIVITY_TIME);
+        }
+
+        // Función para agregar y quitar los event listeners
+        function initializeInactivityDetection() {
+        const events = ['mousemove', 'keydown', 'scroll', 'touchstart', 'wheel'];
+
+        // Añadir event listeners
+        events.forEach(event => {
+            window.addEventListener(event, resetTimer, { passive: true });
+        });
+
+        // Inicializar el temporizador
+        resetTimer();
+
+        // Función para limpiar los event listeners si es necesario
+        const removeListeners = () => {
+            events.forEach(event => {
+            window.removeEventListener(event, resetTimer, { passive: true });
+            });
+        };
+
+        // Opcional: devolver la función para remover los listeners
+        return removeListeners;
+        }
+
+        // Iniciar la detección
+        const removeEventListeners = initializeInactivityDetection();
+
+        // Si deseas detenerla en algún momento, llama a:
+        // removeEventListeners();
+    </script>
+
+    <h1 th:text="${temporarypasswordmessage}"></h1>
+    <h1 th:text="${temporarypassword}" th:id="temporarypasswordemail"></h1>
+    <h1>Sent to:</h1>
+    <h1 th:text="${email}" th:id="email"></h1>
+
     <div>
         <form action="#" th:action="@{'/api/customers?search=' + ${search}}" method="get">
             <input id=search type="text" th:name="search"/>
@@ -25,44 +87,6 @@
          <form action="#" th:action="@{'/api/logoff'}" method="get">
             <input type="submit" value="LOGOFF" />
         </form>
-
-        
-        <h1 th:text="${temporarypasswordmessage}"></h1>
-        <h1 th:text="${temporarypassword}" th:id="temporarypasswordemail"></h1>
-        <h1>Sent to:</h1>
-        <h1 th:text="${email}" th:id="email"></h1>
-
-        <script type="text/javascript"
-            src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
-        </script>
-        <script type="text/javascript">
-            const vtemporarypassword = document.getElementById("temporarypasswordemail")
-            const vemail = document.getElementById("email");
-            (function() {
-                emailjs.init("t3XkHWKbXOsRdteuD");
-            })();
-        
-            var templateParams = {
-                link: window.location.href,
-                email: vemail.innerHTML,
-                temporarypassword: vtemporarypassword.innerHTML,
-                subject: 'Reset your password',
-                header1: 'You have requested a password change.',
-                header2: 'We received a request to reset the password for your account.&nbsp;',
-                message: 'If you did not request this password reset, please ignore this email or let us know immediately. Your account remains secure.'
-            };
-
-            const temppass = document.getElementById("temporarypasswordemail");
-            //alert("Temporary Password:"+temppass.innerHTML);
-            if (temppass.innerHTML != "") {
-                emailjs.send('service_e21bowz', 'template_bf3ewtk', templateParams)
-                    .then(function(response) {
-                    console.log('SUCCESS!', response.status, response.text);
-                    }, function(error) {
-                    console.log('FAILED...', error);
-                    });
-            }
-        </script>
 
         <table class="table table-striped table-bordered">
             <thead class="thead-dark">
@@ -139,7 +163,7 @@
             <label>Email:</label>
             <input th:name="email"/>
             <label>Password:</label>
-            <input th:name="password"/>
+            <input type="password" th:name="password"/>
             <input type="checkbox" th:name="admin"/>
             <label>Administrator</label>
 

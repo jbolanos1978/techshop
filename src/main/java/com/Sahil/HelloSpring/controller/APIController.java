@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.Sahil.HelloSpring.model.Customers;
@@ -35,6 +36,10 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.resend.Resend;
+import com.resend.core.exception.ResendException;
+import com.resend.services.emails.model.CreateEmailOptions;
+import com.resend.services.emails.model.CreateEmailResponse;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -42,6 +47,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
@@ -85,6 +91,36 @@ public class APIController {
     private String region;
     @Value("${AWS_BUCKET}")
     private String bucketName;
+
+    @Value("${RESEND_APIKEY}")
+    private String resendKey;
+
+    @Value("${URL_ROOT}")
+    private String URLROOT;
+
+    private String emailTemplate(String header1, String header2, String message, String temporarypassword, String email, String URL) {
+    return ("<div style='font-family: system-ui, sans-serif, Arial; font-size: 14px; color: #333; padding: 20px 14px; background-color: #f5f5f5;'>"+
+        "<div style='max-width: 600px; margin: auto; background-color: #fff;'>"+
+        "<div style='text-align: center; background-color: #fff; padding: 14px;'>"+
+        "<h1>ECOMMERCE SITE</h1>"+
+        "</div>"+
+        "<div style='padding: 14px;'>"+
+        "<h1 style='font-size: 22px; margin-bottom: 26px;'>" + header1 + "</h1>"+
+        "<p>" + header2 + "</p>"+
+        "<p>A temporary password has been generated for you.&nbsp; Please use the Link to login using that temporary password but also in the Login page select the 'Change Password' option to change it asap.</p>"+
+        "<p>Temporary Password:</p>"+
+        "<p>" + temporarypassword + "</p>"+
+        "<p><a href='" + URL + "'>" + URL + "</a></p>"+
+        "<p>" + message + "</p>"+
+        "<p>Best regards,<br>ECommerce Site Team</p>"+
+        "</div>"+
+        "</div>"+
+        "<div style='max-width: 600px; margin: auto;'>"+
+        "<p style='color: #999;'>The email was sent to " + email + "<br>You received this email because you are registered with ECommerce Site.</p>"+
+        "</div>"+
+        "</div>");
+    }
+
 
     @GetMapping("/products")
     public String getProducts (@RequestParam("search") Optional<String> searchParam, Model model){
@@ -197,7 +233,7 @@ public class APIController {
     }
 
     @GetMapping("/customers/resetpassword/{Id}")
-    public String resetCustomerPassword (@PathVariable(value = "Id") String Id, @ModelAttribute Customers customer, Model model) {
+    public String resetCustomerPassword (@PathVariable(value = "Id") String Id, Model model) {
         Optional<Customers> optionalcustomer = customerRepository.findById(Id);
         String temporarypassword;
         if (optionalcustomer.isPresent()) {
@@ -214,6 +250,23 @@ public class APIController {
             customertoupdate.setpassword(token);
             customertoupdate.setfailedattempts(0L);
             customerRepository.save(customertoupdate);
+
+            Resend resend = new Resend(resendKey);
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                .from("support@quinchojbv1978.com")
+                .to(customertoupdate.getemail())
+                .html(emailTemplate("You have requested a password change.","We received a request to reset the password for your account.&nbsp;","If you did not request this password reset, please ignore this email or let us know immediately. Your account remains secure.",temporarypassword,customertoupdate.getemail(),URLROOT+"/login"))
+                .subject("Reset your password")
+                .build();
+
+            try {
+                CreateEmailResponse data = resend.emails().send(params);
+                System.out.println(data.getId());
+                //model.addAttribute("message", "EMAIL SENT WITH TEMPORARY PASSWORD!");
+            } catch (ResendException e) {
+                System.out.println(e.getMessage());
+                model.addAttribute("temporarypasswordmessage", "EMAIL FAILED PLEASE TRY AGAIN LATER!");
+            }
             model.addAttribute("temporarypasswordmessage","Temporary Password for Customer " +  customertoupdate.getcedula() + " is: ");
             model.addAttribute("temporarypassword", temporarypassword);
             model.addAttribute("email", customertoupdate.getemail());
@@ -226,45 +279,116 @@ public class APIController {
     }
 
     @PostMapping("/login")
-    public RedirectView loginCustomer (@ModelAttribute Customers customer, Model model, HttpServletResponse response) {
-        Customers customerlogin = customerRepository.findByCedula(customer.cedula);      
-        String customerpassword = customerlogin.password;
-
+    public RedirectView CustomerLogin (@ModelAttribute LoginCustomer customer, Model model, HttpServletResponse response, HttpServletRequest request, RedirectAttributes redirectAttributes) {
+        if (!customer.forgotpassword.equals("")) {
+            redirectAttributes.addAttribute("forgotpassword", customer.forgotpassword);
+            redirectAttributes.addAttribute("URL", customer.URL);
+            return new RedirectView("/api/forgotpassword");
+        }
+        Customers customerlogin = customerRepository.findByCedula(customer.cedula);
+        if (customerlogin == null)
+            return new RedirectView("/login?loginmessage=LOGIN FAILED!");
         Key vkey = getSigningKey(); 
         Jws<Claims> jwsClaims = Jwts.parserBuilder()
             .setSigningKey(vkey)
             .build()
-            .parseClaimsJws(customerpassword);
-
+            .parseClaimsJws(customerlogin.password);
         Claims claims = jwsClaims.getBody();
         if (claims.get("userPassword").toString().equals(customer.password)) {
-            Map<String, Object> newclaims = new HashMap<>();
-            newclaims.put("userId", customer.cedula);
-            String token = Jwts.builder()
+            if (customerlogin.failedattempts < 3) {
+                if (claims.get("userPassword").toString().equals(customer.newpassword))
+                    return new RedirectView("/login?loginmessage=NEW PASSWORD MUST DIFFERENT THAN CURRENT PASSWORD!");
+                if (!customer.newpassword.equals(customer.confirmpassword))
+                    return new RedirectView("/login?loginmessage=NEW PASSWORD MUST BE EQUAL TO CONFIRM PASSWORD!");
+                customerlogin.setfailedattempts(0L);
+                if (!customer.newpassword.equals("")) {
+                    Map<String, Object> newclaims = new HashMap<>();
+                    newclaims.put("userPassword", customer.newpassword);
+                    String token = Jwts.builder()
+                        .setClaims(newclaims)
+                        .setSubject(customer.cedula)
+                        .signWith(vkey, SignatureAlgorithm.HS256)
+                        .compact(); 
+                    customerlogin.setpassword(token);
+                }  
+                customerRepository.save(customerlogin);
+                Map<String, Object> newclaims = new HashMap<>();
+                newclaims.put("userId", customer.cedula);
+                String token = Jwts.builder()
                     .setClaims(newclaims)
                     .setSubject(customer.cedula)
                     .signWith(vkey, SignatureAlgorithm.HS256)
-                    .compact();
-            Cookie httpOnlyCookie = new Cookie("techshopsitetoken", token);
-            httpOnlyCookie.setHttpOnly(true);
-            httpOnlyCookie.setPath("/");
-            response.addCookie(httpOnlyCookie);
-            model.addAttribute("customers",customerRepository.findAll());
-            //return "customers";
-            return new RedirectView("/showcustomers?customercedula=" + customer.cedula);
+                    .compact();  
+                Cookie httpOnlyCookie = new Cookie("techshopsitetoken", token);
+                httpOnlyCookie.setHttpOnly(true);
+                httpOnlyCookie.setPath("/");
+                response.addCookie(httpOnlyCookie);
+                model.addAttribute("customers",customerRepository.findAll());
+                return new RedirectView("/showcustomers?customercedula=" + customer.cedula);
+            }
+            else {
+                return new RedirectView("/login?loginmessage=3 FAILED ATTEMPTS - ACCOUNT IS NOW LOCKED!");
+            }
         }
         else {
-            return new RedirectView("/login?failed=LOGIN FAILED!");
+            customerlogin.setfailedattempts(customerlogin.failedattempts+1);
+            customerRepository.save(customerlogin);
+            return new RedirectView("/login?loginmessage=LOGIN FAILED!");
         }
     }
 
+    @GetMapping("/forgotpassword")
+    public String forgotPassword (@ModelAttribute("forgotpassword") String forgotpassword, @ModelAttribute("URL") String URL, Model model) {
+        List<Customers> customeremail = customerRepository.findByEmail(forgotpassword);
+        if (customeremail.size() != 1) {
+            model.addAttribute("message", "EMAIL FAILED PLEASE TRY AGAIN LATER!");
+            model.addAttribute("logincustomer", new LoginCustomer());
+            return "login";
+        }
+
+        String temporarypassword = generatePassword(passwordlength);
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userPassword", temporarypassword);
+        Key vkey = getSigningKey();
+        String token = Jwts.builder()
+                .setClaims(claims)
+                .setSubject("Me")
+                .signWith(vkey, SignatureAlgorithm.HS256)
+                .compact();
+        customeremail.get(0).setpassword(token);
+        customeremail.get(0).setfailedattempts(0L);
+        customerRepository.save(customeremail.get(0));
+        
+        Resend resend = new Resend(resendKey);
+        CreateEmailOptions params = CreateEmailOptions.builder()
+                .from("support@quinchojbv1978.com")
+                .to(forgotpassword)
+                .html(emailTemplate("You have requested a password change.","We received a request to reset the password for your account.&nbsp;","If you did not request this password reset, please ignore this email or let us know immediately. Your account remains secure.",temporarypassword,forgotpassword,URLROOT+"/login"))
+                .subject("Reset your password")
+                .build();
+
+        try {
+            CreateEmailResponse data = resend.emails().send(params);
+            System.out.println(data.getId());
+            model.addAttribute("message", "EMAIL SENT WITH TEMPORARY PASSWORD!");
+        } catch (ResendException e) {
+            System.out.println(e.getMessage());
+            model.addAttribute("message", "EMAIL FAILED PLEASE TRY AGAIN LATER!");
+        }
+
+        model.addAttribute("logincustomer", new LoginCustomer());
+        return "login";
+    }
+
     @GetMapping("/logoff")
-    public String logoffCustomer (HttpServletResponse response) {
+    public String logoffCustomer (HttpServletResponse response, Model model) {
         Cookie httpOnlyCookie = new Cookie("techshopsitetoken", null);
         httpOnlyCookie.setMaxAge(0);
         httpOnlyCookie.setHttpOnly(true);
         httpOnlyCookie.setPath("/");
         response.addCookie(httpOnlyCookie);
+        model.addAttribute("logincustomer", new LoginCustomer());
+
         return "login";
     }
 

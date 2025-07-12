@@ -50,14 +50,17 @@ public class CustomersController {
                     return "customers";
                 }
                 else {
+                    model.addAttribute("logincustomer", new LoginCustomer());
                     return "login";
                 }
             }
             else {
+                model.addAttribute("logincustomer", new LoginCustomer());
                 return "login";
             }
         }
         else {
+            model.addAttribute("logincustomer", new LoginCustomer());
             return "login";
         }
     }

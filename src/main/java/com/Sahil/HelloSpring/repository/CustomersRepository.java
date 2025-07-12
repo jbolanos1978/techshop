@@ -12,5 +12,7 @@ public interface CustomersRepository extends MongoRepository<Customers, String> 
     List<Customers> getContainingCustomer(String nombre); 
     @Query("{ 'cedula' : ?0 }")
     Customers findByCedula(String cedula);   
+    @Query("{ 'email' : ?0 }")
+    List<Customers> findByEmail(String email);
     
 }

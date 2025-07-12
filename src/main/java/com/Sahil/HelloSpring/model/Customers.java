@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table (name = "customers")
@@ -12,7 +13,6 @@ public class Customers {
     @Id
     @Column(name = "_id")
         public String id;
-
 
     public String getcedula() {
         return cedula;
@@ -90,5 +90,11 @@ public class Customers {
 
     @Column(name = "failedattempts")
         public Long failedattempts;
+
+    @Transient
+    public String newpassword;
+
+    @Transient
+    public String confirmpassword;
 
 }
